@@ -14,7 +14,7 @@ interface ApiService {
     @Headers(API_KEY)
     @GET("top-headlines")
     suspend fun getTopNews(
-        @Query("category") category:String?
+        @Query("category") category:String = "technology"
     ) :NewsResponse
 
 }
