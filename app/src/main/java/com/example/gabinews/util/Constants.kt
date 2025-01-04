@@ -8,7 +8,7 @@ object Constants {
 val CATEGORY = listOf(
     Pair(
         "Technology",
-        "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/b6cfb470986679.5bb5b7f2e11ad.jpg"
+        "https://thumbs.dreamstime.com/b/programming-code-abstract-technology-background-software-deve-developer-computer-script-96434780.jpg"
     ),
     Pair(
         "General",
@@ -24,7 +24,7 @@ val CATEGORY = listOf(
     ),
     Pair(
         "Sports",
-        "https://cdn.pixabay.com/photo/2023/04/17/10/31/tennis-7932066_1280.jpg"
+        "https://img.freepik.com/free-photo/sports-tools_53876-138077.jpg?semt=ais_hybrid"
     ),
     Pair(
         "Business",

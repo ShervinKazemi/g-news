@@ -1,5 +1,6 @@
 package com.example.gabinews
 
+import HomeScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.gabinews.di.appModule
-import com.example.gabinews.ui.feature.home.HomeScreen
 import com.example.gabinews.ui.theme.AppTheme
 import com.example.gabinews.util.MyScreens
 import dev.burnoo.cokoin.Koin
