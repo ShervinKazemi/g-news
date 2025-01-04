@@ -7,23 +7,33 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.gabinews.di.appModule
+import com.example.gabinews.ui.feature.home.HomeScreen
 import com.example.gabinews.ui.theme.AppTheme
+import com.example.gabinews.util.MyScreens
+import dev.burnoo.cokoin.Koin
+import dev.burnoo.cokoin.navigation.KoinNavHost
+import org.koin.android.ext.koin.androidContext
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            AppTheme {
-                Scaffold( modifier = Modifier.fillMaxSize() ) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+            Koin(appDeclaration = {
+                androidContext(this@MainActivity)
+                modules(appModule)
+            }) {
+                AppTheme {
+                    Scaffold(
+                        modifier = Modifier.fillMaxSize(),
+                    ) { paddingValues ->
+                        GabiNewsApp(modifier = Modifier.padding(paddingValues))
+                    }
                 }
             }
         }
@@ -31,17 +41,13 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+fun GabiNewsApp(modifier: Modifier = Modifier) {
+    val navController = rememberNavController()
+    KoinNavHost(navController = navController, startDestination = MyScreens.HomeScreen.route) {
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    AppTheme {
-        Greeting("Android")
+        composable(route = MyScreens.HomeScreen.route) {
+            HomeScreen()
+        }
+
     }
 }
