@@ -9,7 +9,7 @@ val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
 }
 
 fun Article.isValid() :Boolean {
-    return this.source.name != "[Removed]" && title.isNotBlank() && content.isNotBlank()
+    return this.title != "[Removed]" && this.content != "[Removed]" && this.urlToImage != null
 }
 
 fun List<Article>.filterValidNews(): List<Article> {

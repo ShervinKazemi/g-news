@@ -24,11 +24,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.gabinews.ui.theme.AppTypography
+import com.example.gabinews.util.MyScreens
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(navController: NavHostController) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var showAboutDialog by remember { mutableStateOf(false) }
@@ -44,6 +48,9 @@ fun HomeScreen() {
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
+                    modifier = Modifier.windowInsetsPadding(
+                        WindowInsets.safeDrawing.only(WindowInsetsSides.Top)
+                    ),
                     title = {
                         Text(
                             text = "G News",
@@ -79,20 +86,16 @@ fun HomeScreen() {
             NewsFeed(
                 categories = CATEGORY,
                 modifier = Modifier.padding(paddingValues)
-            ) {
-
+            ) { category ->
+                navController.navigate(MyScreens.NewsScreen.createRoute(category))
             }
         }
 
-        // About Dialog
         if (showAboutDialog) {
-            AboutDialog(
-                onDismiss = { showAboutDialog = false }
-            )
+            AboutDialog(onDismiss = { showAboutDialog = false })
         }
     }
 }
-
 @Composable
 fun AboutDialog(onDismiss: () -> Unit) {
     AlertDialog(
@@ -195,7 +198,6 @@ fun InfoRow(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavigationDrawer(
     drawerState: DrawerState,
@@ -238,8 +240,6 @@ data class DrawerItem(
     val route: String
 )
 
-// Your existing NewsFeed and NewsCard components remain the same as in your original code
-
 
 @Composable
 fun NewsFeed(
@@ -252,7 +252,7 @@ fun NewsFeed(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        items(categories.shuffled()) { category ->
+        items(categories) { category ->
             NewsCard(
                 category = category,
                 onCategoryClick = onCategoryClick
@@ -266,23 +266,16 @@ fun NewsCard(
     category: Pair<String, String>,
     onCategoryClick: (String) -> Unit
 ) {
-    var isPressed by remember { mutableStateOf(false) }
-
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .height(240.dp)
             .clip(MaterialTheme.shapes.large)
-            .clickable {
-                onCategoryClick(category.first)
-            }
+            .clickable { onCategoryClick(category.first) }
             .animateContentSize(),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = if (isPressed) 8.dp else 2.dp
-        )
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            // Background Image
             AsyncImage(
                 model = category.second,
                 contentDescription = null,
@@ -303,7 +296,6 @@ fun NewsCard(
                     )
             )
 
-            // Content
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
@@ -325,17 +317,6 @@ fun NewsCard(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-        }
-    }
-}
-
-// Preview
-@Preview(showBackground = true)
-@Composable
-fun HomeScreenPreview() {
-    MaterialTheme {
-        Surface {
-            HomeScreen()
         }
     }
 }

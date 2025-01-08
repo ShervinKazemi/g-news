@@ -1,20 +1,28 @@
 package com.example.gabinews
 
 import HomeScreen
+import NewsScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.ui.graphics.Color
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.gabinews.di.appModule
 import com.example.gabinews.ui.theme.AppTheme
+import com.example.gabinews.util.Constants.KEY_CATEGORY_ARG
 import com.example.gabinews.util.MyScreens
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dev.burnoo.cokoin.Koin
 import dev.burnoo.cokoin.navigation.KoinNavHost
 import org.koin.android.ext.koin.androidContext
@@ -29,25 +37,51 @@ class MainActivity : ComponentActivity() {
                 modules(appModule)
             }) {
                 AppTheme {
-                    Scaffold(
+                    val systemUiController = rememberSystemUiController()
+                    val useDarkIcons = !isSystemInDarkTheme()
+
+                    DisposableEffect(systemUiController, useDarkIcons) {
+                        systemUiController.setSystemBarsColor(
+                            color = Color.Transparent,
+                            darkIcons = useDarkIcons
+                        )
+                        onDispose {}
+                    }
+
+                    Surface(
                         modifier = Modifier.fillMaxSize(),
-                    ) { paddingValues ->
-                        GabiNewsApp(modifier = Modifier.padding(paddingValues))
+                        color = MaterialTheme.colorScheme.background
+                    ) {
+                        GabiNewsApp()
                     }
                 }
             }
         }
     }
 }
-
 @Composable
 fun GabiNewsApp(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
-    KoinNavHost(navController = navController, startDestination = MyScreens.HomeScreen.route) {
 
+    KoinNavHost(
+        navController = navController,
+        startDestination = MyScreens.HomeScreen.route,
+        modifier = modifier
+    ) {
         composable(route = MyScreens.HomeScreen.route) {
-            HomeScreen()
+            HomeScreen(navController = navController)
         }
 
+        composable(
+            route = MyScreens.NewsScreen.route + "/{$KEY_CATEGORY_ARG}",
+            arguments = listOf(
+                navArgument(KEY_CATEGORY_ARG) { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            NewsScreen(
+                category = backStackEntry.arguments?.getString(KEY_CATEGORY_ARG) ?: "",
+                navController = navController
+            )
+        }
     }
 }

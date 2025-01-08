@@ -1,9 +1,9 @@
-package com.example.gabinews.model.repository.home
+package com.example.gabinews.model.repository.news
 
 import com.example.gabinews.model.data.NewsResponse
 import com.example.gabinews.model.net.ApiService
 
-class HomeRepositoryImpl(val apiService: ApiService): HomeRepository {
+class NewsRepositoryImpl(private val apiService: ApiService): NewsRepository {
 
     override suspend fun getTopNews(category: String): NewsResponse {
         return apiService.getTopNews(category)

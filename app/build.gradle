@@ -83,4 +83,6 @@ dependencies {
     implementation(libs.accompanist.pager)
     implementation(libs.accompanist.pager.indicators)
 
+    implementation("com.github.skydoves:orbital:0.4.0")
+
 }
