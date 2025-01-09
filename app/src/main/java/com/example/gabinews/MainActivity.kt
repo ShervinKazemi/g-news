@@ -1,7 +1,5 @@
 package com.example.gabinews
 
-import HomeScreen
-import NewsScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -19,14 +17,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.gabinews.di.appModule
-import com.example.gabinews.ui.feature.HeroViewModel
 import com.example.gabinews.ui.feature.detail.DetailScreen
+import com.example.gabinews.ui.feature.home.HomeScreen
+import com.example.gabinews.ui.feature.news.NewsScreen
 import com.example.gabinews.ui.theme.AppTheme
 import com.example.gabinews.util.Constants.KEY_ARTICLE_ARG
 import com.example.gabinews.util.Constants.KEY_CATEGORY_ARG
 import com.example.gabinews.util.MyScreens
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.google.gson.Gson
 import dev.burnoo.cokoin.Koin
 import dev.burnoo.cokoin.navigation.KoinNavHost
 import org.koin.android.ext.koin.androidContext
@@ -94,7 +92,7 @@ fun GabiNewsApp(modifier: Modifier = Modifier) {
             arguments = listOf(navArgument(KEY_ARTICLE_ARG) { type = NavType.StringType })
         ) { backStackEntry ->
             val articleJson = backStackEntry.arguments?.getString(KEY_ARTICLE_ARG) ?: ""
-            DetailScreen(articleJson = articleJson, navController = navController, heroViewModel = HeroViewModel())
+            DetailScreen(articleJson = articleJson, navController = navController)
         }
 
     }

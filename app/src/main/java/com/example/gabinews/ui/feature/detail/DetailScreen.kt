@@ -2,11 +2,7 @@
 
 package com.example.gabinews.ui.feature.detail
 
-import android.widget.ScrollView
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.slideInVertically
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,13 +22,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.example.gabinews.model.data.NewsResponse
-import com.example.gabinews.ui.feature.HeroViewModel
 import com.example.gabinews.ui.widgets.HeroImage
 import com.example.gabinews.util.formatDate
 import com.google.gson.Gson
@@ -42,19 +35,10 @@ import java.nio.charset.StandardCharsets
 @Composable
 fun DetailScreen(
     articleJson: String,
-    navController: NavHostController,
-    heroViewModel: HeroViewModel
+    navController: NavHostController
 ) {
     val decodedJson = URLDecoder.decode(articleJson, StandardCharsets.UTF_8.toString())
     val article = Gson().fromJson(decodedJson, NewsResponse.Article::class.java)
-    val currentArticle by heroViewModel.currentArticle.collectAsStateWithLifecycle()
-
-    DisposableEffect(Unit) {
-        heroViewModel.startHeroAnimation(article)
-        onDispose {
-            heroViewModel.endHeroAnimation()
-        }
-    }
 
     Scaffold(
         topBar = {
@@ -73,7 +57,6 @@ fun DetailScreen(
             )
         }
     ) { innerPadding ->
-        // Make the entire screen scrollable
         Column(
             modifier = Modifier
                 .padding(innerPadding)
@@ -88,7 +71,6 @@ fun DetailScreen(
                 )
             }
 
-            // Content of the article
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
                     text = article.title.orEmpty(),

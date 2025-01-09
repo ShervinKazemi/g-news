@@ -1,8 +1,7 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+package com.example.gabinews.ui.feature.news
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -21,26 +20,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.example.gabinews.model.data.NewsResponse
-import com.example.gabinews.ui.feature.HeroViewModel
 import com.example.gabinews.ui.feature.NewsViewModel
-import com.example.gabinews.ui.widgets.HeroImage
 import com.example.gabinews.ui.widgets.SharedImage
-import com.example.gabinews.util.AnimatedNewsImage
 import com.example.gabinews.util.MyScreens
 import com.example.gabinews.util.UiState
 import com.example.gabinews.util.filterValidNews
@@ -49,13 +39,10 @@ import com.google.gson.Gson
 import dev.burnoo.cokoin.viewmodel.getViewModel
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 @Composable
 fun NewsScreen(category: String, navController: NavHostController) {
     val viewModel = getViewModel<NewsViewModel>()
-    val heroViewModel = getViewModel<HeroViewModel>()
     val newsState = viewModel.news.collectAsStateWithLifecycle().value
 
     LaunchedEffect(category) {
@@ -77,8 +64,7 @@ fun NewsScreen(category: String, navController: NavHostController) {
             NewsList(
                 articles = articles,
                 category = category,
-                navController = navController,
-                heroViewModel = heroViewModel
+                navController = navController
             )
         }
 
@@ -92,8 +78,7 @@ fun NewsScreen(category: String, navController: NavHostController) {
 fun NewsList(
     articles: List<NewsResponse.Article>,
     category: String,
-    navController: NavHostController,
-    heroViewModel: HeroViewModel
+    navController: NavHostController
 ) {
     var selectedArticle by remember { mutableStateOf<NewsResponse.Article?>(null) }
 
@@ -157,6 +142,7 @@ fun NewsItem(
                     contentDescription = "News Image",
                     modifier = Modifier
                         .fillMaxWidth()
+                        .height(250.dp)
                         .graphicsLayer {
                             alpha = if (isSelected) 1f else 0.8f
                             scaleX = if (isSelected) 1.1f else 1f
