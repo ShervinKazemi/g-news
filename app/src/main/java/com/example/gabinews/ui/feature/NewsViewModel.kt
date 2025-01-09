@@ -3,7 +3,7 @@ package com.example.gabinews.ui.feature
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.gabinews.model.data.NewsResponse
-import com.example.gabinews.model.repository.news.NewsRepository
+import com.example.gabinews.model.repository.NewsRepository
 import com.example.gabinews.util.UiState
 import com.example.gabinews.util.coroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow

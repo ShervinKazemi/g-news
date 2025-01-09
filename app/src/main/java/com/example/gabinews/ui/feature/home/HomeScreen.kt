@@ -1,3 +1,5 @@
+package com.example.gabinews.ui.feature.home
+
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -9,7 +11,6 @@ import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.gabinews.util.CATEGORY
@@ -24,9 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.example.gabinews.ui.theme.AppTypography
 import com.example.gabinews.util.MyScreens
 
@@ -252,7 +251,7 @@ fun NewsFeed(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        items(categories) { category ->
+        items(categories.shuffled()) { category ->
             NewsCard(
                 category = category,
                 onCategoryClick = onCategoryClick
