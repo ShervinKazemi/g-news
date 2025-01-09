@@ -1,6 +1,10 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -18,26 +22,40 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.gabinews.model.data.NewsResponse
+import com.example.gabinews.ui.feature.HeroViewModel
 import com.example.gabinews.ui.feature.NewsViewModel
+import com.example.gabinews.ui.widgets.HeroImage
+import com.example.gabinews.ui.widgets.SharedImage
+import com.example.gabinews.util.AnimatedNewsImage
+import com.example.gabinews.util.MyScreens
 import com.example.gabinews.util.UiState
 import com.example.gabinews.util.filterValidNews
+import com.example.gabinews.util.formatDate
+import com.google.gson.Gson
 import dev.burnoo.cokoin.viewmodel.getViewModel
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 @Composable
 fun NewsScreen(category: String, navController: NavHostController) {
     val viewModel = getViewModel<NewsViewModel>()
+    val heroViewModel = getViewModel<HeroViewModel>()
     val newsState = viewModel.news.collectAsStateWithLifecycle().value
 
     LaunchedEffect(category) {
@@ -55,12 +73,13 @@ fun NewsScreen(category: String, navController: NavHostController) {
         }
 
         is UiState.Success -> {
-
             val articles = newsState.data.filterValidNews()
-            NewsList(articles, category) {
-                navController.popBackStack()
-            }
-
+            NewsList(
+                articles = articles,
+                category = category,
+                navController = navController,
+                heroViewModel = heroViewModel
+            )
         }
 
         is UiState.Error -> {
@@ -73,8 +92,11 @@ fun NewsScreen(category: String, navController: NavHostController) {
 fun NewsList(
     articles: List<NewsResponse.Article>,
     category: String,
-    onBackClick: () -> Unit
+    navController: NavHostController,
+    heroViewModel: HeroViewModel
 ) {
+    var selectedArticle by remember { mutableStateOf<NewsResponse.Article?>(null) }
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -85,7 +107,7 @@ fun NewsList(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = onBackClick) {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.Rounded.KeyboardArrowLeft,
                             contentDescription = "Back"
@@ -101,42 +123,49 @@ fun NewsList(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(articles.take(20)) { article ->
-                NewsItem(article = article)
+                NewsItem(
+                    article = article,
+                    isSelected = selectedArticle == article,
+                    navController = navController
+                )
             }
         }
     }
 }
 
 @Composable
-fun NewsItem(article: NewsResponse.Article) {
+fun NewsItem(
+    article: NewsResponse.Article,
+    isSelected: Boolean,
+    navController: NavHostController
+) {
+    val articleJson = URLEncoder.encode(Gson().toJson(article), StandardCharsets.UTF_8.toString())
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
             .clip(RoundedCornerShape(16.dp))
+            .clickable {
+                navController.navigate(MyScreens.DetailScreen.createRoute(articleJson))
+            }
     ) {
-        Column() {
-
+        Column {
             if (article.urlToImage != null) {
-                Box(
+                SharedImage(
+                    imageUrl = article.urlToImage,
+                    contentDescription = "News Image",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(200.dp)
-                        .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-                ) {
-                    AsyncImage(
-                        model = article.urlToImage,
-                        contentDescription = "News Image",
-                        modifier = Modifier.fillMaxWidth(),
-                        contentScale = ContentScale.Crop
-                    )
-                }
+                        .graphicsLayer {
+                            alpha = if (isSelected) 1f else 0.8f
+                            scaleX = if (isSelected) 1.1f else 1f
+                            scaleY = if (isSelected) 1.1f else 1f
+                        }
+                )
             }
 
-            // Text content (Title and Description)
-            Column(
-                modifier = Modifier.padding(12.dp)
-            ) {
+            Column(modifier = Modifier.padding(12.dp)) {
                 Text(
                     text = article.title.orEmpty(),
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
@@ -153,10 +182,8 @@ fun NewsItem(article: NewsResponse.Article) {
                     overflow = TextOverflow.Ellipsis
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-
-                // Timestamp or any additional meta data like in a Tweet
                 Text(
-                    text = "Published at: "+formatDate(article.publishedAt.toString()),
+                    text = "Published at: " + formatDate(article.publishedAt.toString()),
                     style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -164,6 +191,7 @@ fun NewsItem(article: NewsResponse.Article) {
         }
     }
 }
+
 
 @Composable
 fun OfflineMessageScreen() {
@@ -175,7 +203,7 @@ fun OfflineMessageScreen() {
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            // Icon with some shadow and opacity
+
             Icon(
                 imageVector = Icons.Default.Warning,
                 contentDescription = "No Internet",
@@ -190,7 +218,7 @@ fun OfflineMessageScreen() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Stylish Message Text
+
             Text(
                 text = "Lost in the shadows of the offline world?\nReconnect to unveil the secrets waiting for you.",
                 color = Color.White,
@@ -201,16 +229,5 @@ fun OfflineMessageScreen() {
                 modifier = Modifier.alpha(0.9f)
             )
         }
-    }
-}
-
-private fun formatDate(dateString: String): String {
-    val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
-    val outputFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
-    return try {
-        val date = inputFormat.parse(dateString)
-        outputFormat.format(date!!)
-    } catch (e: Exception) {
-        dateString
     }
 }
